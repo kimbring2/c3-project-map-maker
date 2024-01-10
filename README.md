@@ -50,4 +50,4 @@ if (distDriven >= 175) {
    
 
 8. Live Demo Video
-[![Lidar map generator demo]([https://i3.ytimg.com/vi/SwqSuTBwT0A/hqdefault.jpg](https://img.youtube.com/vi/AmmJID_VS9Y/maxresdefault.jpg)https://img.youtube.com/vi/AmmJID_VS9Y/maxresdefault.jpg)](https://youtu.be/AmmJID_VS9Y)
+[![Lidar map generator demo]([https://img.youtube.com/vi/AmmJID_VS9Y/maxresdefault.jpg](https://img.youtube.com/vi/AmmJID_VS9Y/maxresdefault.jpg)https://img.youtube.com/vi/AmmJID_VS9Y/maxresdefault.jpg)](https://youtu.be/AmmJID_VS9Y)
