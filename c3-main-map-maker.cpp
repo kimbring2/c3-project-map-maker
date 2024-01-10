@@ -114,8 +114,8 @@ int main(){
 	// CANDO: Can modify lidar values to get different scan resolutions
 	lidar_bp.SetAttribute("upper_fov", "15");
     lidar_bp.SetAttribute("lower_fov", "-25");
-    lidar_bp.SetAttribute("channels", "32");
-    lidar_bp.SetAttribute("range", "30");
+	lidar_bp.SetAttribute("channels", "32");
+	lidar_bp.SetAttribute("range", "30");
 	lidar_bp.SetAttribute("rotation_frequency", "60");
 	lidar_bp.SetAttribute("points_per_second", "500000");
 
@@ -155,19 +155,19 @@ int main(){
 	});
 	
 	Pose poseRef(Point(vehicle->GetTransform().location.x, vehicle->GetTransform().location.y, vehicle->GetTransform().location.z), 
-				 Rotate(vehicle->GetTransform().rotation.yaw * pi/180, 
-				 		vehicle->GetTransform().rotation.pitch * pi/180, 
-				 		vehicle->GetTransform().rotation.roll * pi/180));
+				Rotate(vehicle->GetTransform().rotation.yaw * pi/180, 
+						vehicle->GetTransform().rotation.pitch * pi/180, 
+						vehicle->GetTransform().rotation.roll * pi/180));
 	double maxError = 0;
 	int step = 0;
 	bool save = true;
 
 	Pose truePose = Pose(Point(vehicle->GetTransform().location.x, 
-							   vehicle->GetTransform().location.y, 
-							   vehicle->GetTransform().location.z), 
+								vehicle->GetTransform().location.y, 
+								vehicle->GetTransform().location.z), 
 						 Rotate(vehicle->GetTransform().rotation.yaw * pi/180, 
-						 		vehicle->GetTransform().rotation.pitch * pi/180, 
-						 		vehicle->GetTransform().rotation.roll * pi/180)) - poseRef;
+								vehicle->GetTransform().rotation.pitch * pi/180, 
+								vehicle->GetTransform().rotation.roll * pi/180)) - poseRef;
 	double lastDistDriven = sqrt( (truePose.position.x) * (truePose.position.x) + (truePose.position.y) * (truePose.position.y) );
 
 	// PointCloud for accumulating all lidar data
@@ -188,17 +188,17 @@ int main(){
 		viewer->removeShape("box0");
 		viewer->removeShape("boxFill0");
 		truePose = Pose(Point(vehicle->GetTransform().location.x, 
-							  vehicle->GetTransform().location.y, 
-							  vehicle->GetTransform().location.z), 
+								vehicle->GetTransform().location.y, 
+								vehicle->GetTransform().location.z), 
 						Rotate(vehicle->GetTransform().rotation.yaw * pi/180, 
-							  vehicle->GetTransform().rotation.pitch * pi/180, 
-							  vehicle->GetTransform().rotation.roll * pi/180)) - poseRef;
+								vehicle->GetTransform().rotation.pitch * pi/180, 
+								vehicle->GetTransform().rotation.roll * pi/180)) - poseRef;
 		drawCar(truePose, 0, Color(1,0,0), 0.7, viewer);
 		double theta = truePose.rotation.yaw;
 		double stheta = control.steer * pi/4 + theta;
 		viewer->removeShape("steer");
 		renderRay(viewer, Point(truePose.position.x+2*cos(theta), truePose.position.y+2*sin(theta),truePose.position.z), 
-						  Point(truePose.position.x+4*cos(stheta), truePose.position.y+4*sin(stheta),truePose.position.z), "steer", Color(0,1,0));
+							Point(truePose.position.x+4*cos(stheta), truePose.position.y+4*sin(stheta),truePose.position.z), "steer", Color(0,1,0));
 
 		ControlState accuate(0, 0, 1);
 		if(cs.size() > 0){
@@ -209,7 +209,7 @@ int main(){
 			vehicle->ApplyControl(control);
 		}
 
-  		viewer->spinOnce();
+		viewer->spinOnce();
 
 		if(!new_scan){
 			new_scan = true;
@@ -228,18 +228,20 @@ int main(){
 
 			double distDriven = sqrt( (truePose.position.x) * (truePose.position.x) + (truePose.position.y) * (truePose.position.y) );
 
-            // Shift the lidar data point along moved distance to keep the history of it
+			// Shift the lidar data point along moved distance to keep the history of it
 			for (size_t i = 0; i < cloudFiltered->size(); ++i){
-		        cloudFiltered->points[i].x += distDriven;
+				cloudFiltered->points[i].x += distDriven;
 		    }
 
-		    // Add lidar data when moving 1m
+			// Add lidar data when moving 1m
 			if (distDriven - lastDistDriven >= 1) {
 				*accumulatedCloud += *cloudFiltered;
 				lastDistDriven = distDriven;
 			}
 
 			cout << "distDriven: " << distDriven << endl;
+
+			// Save the map file when reaching the goal position
 			if (distDriven >= 175) {
 				if (save == true) {
 					pcl::io::savePCDFileASCII ("map.pcd", *accumulatedCloud);
