@@ -47,6 +47,7 @@ if (distDriven >= 175) {
 ```
 
 6. After 175m driving, the PCD file will be saved under ```map.pcd``` file of the project folder.
+<img src="images/generaged_pcd_file.png" width="600">
    
-7. Live Demo Video
+8. Live Demo Video
 [![Lidar map generator demo](https://img.youtube.com/vi/AmmJID_VS9Y/maxresdefault.jpg)](https://youtu.be/AmmJID_VS9Y)
