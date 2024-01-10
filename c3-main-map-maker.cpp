@@ -170,6 +170,7 @@ int main(){
 						 		vehicle->GetTransform().rotation.roll * pi/180)) - poseRef;
 	double lastDistDriven = sqrt( (truePose.position.x) * (truePose.position.x) + (truePose.position.y) * (truePose.position.y) );
 
+	// PointCloud for accumulating all lidar data
 	pcl::PointCloud<PointT>::Ptr accumulatedCloud(new pcl::PointCloud<PointT>);
 
 	while (!viewer->wasStopped())
@@ -227,16 +228,12 @@ int main(){
 
 			double distDriven = sqrt( (truePose.position.x) * (truePose.position.x) + (truePose.position.y) * (truePose.position.y) );
 
+            // Shift the lidar data point along moved distance to keep the history of it
 			for (size_t i = 0; i < cloudFiltered->size(); ++i){
-				//cout << "scanCloud->points[i].x: " << scanCloud->points[i].x << endl;
 		        cloudFiltered->points[i].x += distDriven;
-		        //scanCloud->points[i].z -= 1;
 		    }
 
-			//if (step % 64 == 0) {
-			//	*accumulatedCloud += *cloudFiltered;
-			//}
-
+		    // Add lidar data when moving 1m
 			if (distDriven - lastDistDriven >= 1) {
 				*accumulatedCloud += *cloudFiltered;
 				lastDistDriven = distDriven;
