@@ -1,65 +1,53 @@
 # Instructions to Execute the Project
+This repository is made for generating the lidar map file for [Udacity Scan Matching Localization project](https://github.com/udacity/nd0013_cd2693_Exercise_Starter_Code/tree/main/Lesson_7_Project_Scan_Matching_Localization/c3-project).
 
-1. Navigate to the **c3-project** directory containing the project starter files.
-    ```bash
-    cd nd0013_cd2693_Exercise_Starter_Code/Lesson_7_Project_Scan_Matching_Localization/c3-project
-    ```
+Evert parts are the same as the original project except this code accumulates the scanned lidar and saves it under PCD file
 
 
-2. Review the starter files. You must find the following files in your current working directory.
-    ```bash
-    .
-    ├── CMakeLists.txt
-    ├── README.md
-    ├── c3-main.cpp
-    ├── helper.cpp
-    ├── helper.h
-    ├── libcarla-install/
-    ├── make-libcarla-install.sh
-    ├── map.pcd
-    ├── map_loop.pcd
-    ├── rpclib
-    └── run_carla.sh
-    ```
-
-
-3. Ensure that the **libcarla-install/** folder is present in your current working directory. The folder contains the static binaries built for the target VM workspace environment. If the folder is missing or corrupt, you can regenerate the files using the following command:
-    ```bash
-    chmod +x make-libcarla-install.sh
-    ./make-libcarla-install.sh
-    ```
-
-
-
-4. Update the ** c3-main.cpp** file per the `TODO` markers and the classroom instructions. 
-
-
-5. Compile the project using the following commands. 
+1. Compile the project using the following commands. 
 
     ```bash
     cmake .
     make
     ```
-    These steps will generate the **clooud_loc** executable. 
-
-
-6. Open a new Terminal tab and execute the following command to start the simulator.
-
+    These steps will generate the **cloud_loc_map_maker** executable.
+   
+2. Open a new Terminal tab and execute the following command to start the simulator.
     ```bash
     ./run_carla.sh
-    ```  
-
-
-7. Open another Terminal tab and execute the following to run the project.
-    ```bash
-    ./cloud_loc 
     ```
-If you encounter core dump on start up, just rerun and try again. Crash doesn't happen more than a couple of times. 
+    
+3. Open another Terminal tab and execute the following to run the project.
+    ```bash
+    ./cloud_loc_map_maker 
+    ```
+    
+4. Please tap the Up key 2~3 times to start the vehicle.
 
+5. Lidar data will be accumulated per 1m driving range. You can manually set the parameter of the code. Please check the below part of the code.
+```
+for (size_t i = 0; i < cloudFiltered->size(); ++i){
+    //cout << "scanCloud->points[i].x: " << scanCloud->points[i].x << endl;
+    cloudFiltered->points[i].x += distDriven;
+    //scanCloud->points[i].z -= 1;
+}
 
+if (distDriven - lastDistDriven >= 1) {
+    *accumulatedCloud += *cloudFiltered;
+    lastDistDriven = distDriven;
+}
 
-Here is a glimpse of the running project.
+cout << "distDriven: " << distDriven << endl;
+if (distDriven >= 175) {
+    if (save == true) {
+        pcl::io::savePCDFileASCII ("map.pcd", *accumulatedCloud);
+        save = false;
+    }
+}
+```
 
-![a glimpse of the running project](../../assets/L7_Project.png)
-# c3-project-map-maker
-# c3-project-map-maker
+6. After 175m driving, the PCD file will be saved under ```map.pcd``` file of the project folder.
+   
+
+8. Live Demo Video
+[![Lidar map generator demo]([https://i3.ytimg.com/vi/SwqSuTBwT0A/hqdefault.jpg](https://img.youtube.com/vi/AmmJID_VS9Y/maxresdefault.jpg)https://img.youtube.com/vi/AmmJID_VS9Y/maxresdefault.jpg)](https://youtu.be/AmmJID_VS9Y)
