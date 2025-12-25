@@ -244,7 +244,16 @@ int main(){
 			// Save the map file when reaching the goal position
 			if (distDriven >= 175) {
 				if (save == true) {
-					pcl::io::savePCDFileASCII ("map.pcd", *accumulatedCloud);
+					// Convert accumulated cloud into voxel grid to reduce the number of data points
+					pcl::VoxelGrid<PointT> map_filter;
+		            map_filter.setInputCloud(accumulatedCloud);
+		            double mapRes = 0.5; 
+		            map_filter.setLeafSize(mapRes, mapRes, mapRes);
+		            pcl::PointCloud<PointT>::Ptr filteredMap(new pcl::PointCloud<PointT>);
+		            map_filter.filter(*filteredMap);
+		            cout << "Map filtered. Points after: " << filteredMap->points.size() << endl;
+					
+					pcl::io::savePCDFileASCII ("map.pcd", *filteredMap);
 					save = false;
 				}
 			}
