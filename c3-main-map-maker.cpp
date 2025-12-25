@@ -214,6 +214,7 @@ int main(){
 		if(!new_scan){
 			new_scan = true;
 
+			// Filter scan using voxel filter
   			pcl::VoxelGrid<PointT> vg;
 			vg.setInputCloud(scanCloud);
 			double filterRes = 0.5;
@@ -221,6 +222,7 @@ int main(){
 			typename pcl::PointCloud<PointT>::Ptr cloudFiltered(new pcl::PointCloud<PointT>);
 			vg.filter(*cloudFiltered);
 
+			// Find current pose transform of vehicle 
 			pose = Pose(Point(vehicle->GetTransform().location.x, vehicle->GetTransform().location.y, vehicle->GetTransform().location.z), 
 	                    Rotate(vehicle->GetTransform().rotation.yaw   * pi / 180, 
 	                           vehicle->GetTransform().rotation.pitch * pi / 180, 
