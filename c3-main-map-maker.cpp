@@ -198,7 +198,7 @@ int main(){
 		double stheta = control.steer * pi/4 + theta;
 		viewer->removeShape("steer");
 		renderRay(viewer, Point(truePose.position.x+2*cos(theta), truePose.position.y+2*sin(theta),truePose.position.z), 
-							Point(truePose.position.x+4*cos(stheta), truePose.position.y+4*sin(stheta),truePose.position.z), "steer", Color(0,1,0));
+						  Point(truePose.position.x+4*cos(stheta), truePose.position.y+4*sin(stheta),truePose.position.z), "steer", Color(0,1,0));
 
 		ControlState accuate(0, 0, 1);
 		if(cs.size() > 0){
@@ -221,6 +221,13 @@ int main(){
 			typename pcl::PointCloud<PointT>::Ptr cloudFiltered(new pcl::PointCloud<PointT>);
 			vg.filter(*cloudFiltered);
 
+			pose = Pose(Point(vehicle->GetTransform().location.x, vehicle->GetTransform().location.y, vehicle->GetTransform().location.z), 
+	                    Rotate(vehicle->GetTransform().rotation.yaw   * pi / 180, 
+	                           vehicle->GetTransform().rotation.pitch * pi / 180, 
+	                           vehicle->GetTransform().rotation.roll  * pi / 180)) - poseRef;
+        	Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, 
+                                                	pose.position.x, pose.position.y, pose.position.z);
+
 			viewer->removePointCloud("scan");
 			viewer->removeAllShapes();
 
@@ -228,14 +235,13 @@ int main(){
 
 			double distDriven = sqrt( (truePose.position.x) * (truePose.position.x) + (truePose.position.y) * (truePose.position.y) );
 
-			// Shift the lidar data point along moved distance to keep the history of it
-			for (size_t i = 0; i < cloudFiltered->size(); ++i){
-				cloudFiltered->points[i].x += distDriven;
-		    }
+			// Transform scan so it aligns with ego's actual pose and render that scan
+            PointCloudT::Ptr transformed_scan(new PointCloudT);
+            pcl::transformPointCloud(*cloudFiltered, *transformed_scan, transform);
 
 			// Add lidar data when moving 1m
 			if (distDriven - lastDistDriven >= 1) {
-				*accumulatedCloud += *cloudFiltered;
+				*accumulatedCloud += *transformed_scan;
 				lastDistDriven = distDriven;
 			}
 
