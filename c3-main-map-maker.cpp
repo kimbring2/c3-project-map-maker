@@ -142,7 +142,7 @@ int main(){
 			for (auto detection : *scan) {
 				if ((detection.x*detection.x + detection.y*detection.y + detection.z*detection.z) > 8.0) {
 					//pclCloud.points.push_back(PointT(detection.x, detection.y, detection.z));
-					pclCloud.points.push_back(PointT(-detection.y, detection.x, detection.z));
+					pclCloud.points.push_back(PointT(-detection.y, detection.x, -detection.z));
 				}
 			}
 
@@ -230,16 +230,16 @@ int main(){
         	Eigen::Matrix4d transform = transform3D(pose.rotation.yaw, pose.rotation.pitch, pose.rotation.roll, 
                                                 	pose.position.x, pose.position.y, pose.position.z);
 
-			viewer->removePointCloud("scan");
-			viewer->removeAllShapes();
-
-			renderPointCloud(viewer, cloudFiltered, "scan", Color(1,0,0));
-
-			double distDriven = sqrt( (truePose.position.x) * (truePose.position.x) + (truePose.position.y) * (truePose.position.y) );
-
 			// Transform scan so it aligns with ego's actual pose and render that scan
             PointCloudT::Ptr transformed_scan(new PointCloudT);
             pcl::transformPointCloud(*cloudFiltered, *transformed_scan, transform);
+
+			viewer->removePointCloud("scan");
+			viewer->removeAllShapes();
+
+			renderPointCloud(viewer, transformed_scan, "scan", Color(1,0,0));
+
+			double distDriven = sqrt( (truePose.position.x) * (truePose.position.x) + (truePose.position.y) * (truePose.position.y) );
 
 			// Add lidar data when moving 1m
 			if (distDriven - lastDistDriven >= 1) {
